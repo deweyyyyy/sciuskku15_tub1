@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Logs</title>
+    
+    <!-- Google Fonts - Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-input {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-input input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .search-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .user-info {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .user-info.active {
+            display: block;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2em;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-details h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .user-details p {
+            color: #666;
+            margin: 3px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            color: #667eea;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .logs-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .logs-section.active {
+            display: block;
+        }
+
+        .logs-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .timeline-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 25px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #667eea;
+        }
+
+        .timeline-item.type-first_login::before { border-color: #28a745; }
+        .timeline-item.type-start_exam::before { border-color: #007bff; }
+        .timeline-item.type-view_exam_page::before { border-color: #17a2b8; }
+        .timeline-item.type-select_subject::before { border-color: #ffc107; }
+
+        .timeline-time {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.95em;
+            margin-bottom: 8px;
+        }
+
+        .timeline-action {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .timeline-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-primary { background: #cfe2ff; color: #084298; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .no-data i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .submissions-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .submission-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .submission-subject {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .submission-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .submission-duration {
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .duration-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .duration-item i {
+            color: #667eea;
+        }
+
+        .duration-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .timeline {
+                padding-left: 30px;
+            }
+
+            .timeline::before {
+                left: 10px;
+            }
+
+            .timeline-item::before {
+                left: -28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> กลับ Dashboard
+        </a>
+
+        <div class="header">
+            <h1><i class="fas fa-user-shield"></i> ค้นหา User Logs</h1>
+            <p>ดูประวัติการใช้งานของผู้ใช้แต่ละคน</p>
+        </div>
+
+        <div class="search-box">
+            <div class="search-input">
+                <input type="email" id="emailInput" placeholder="กรอกอีเมลผู้ใช้..." onkeypress="if(event.key === 'Enter') searchUser()">
+                <button class="btn" onclick="searchUser()">
+                    <i class="fas fa-search"></i> ค้นหา
+                </button>
+            </div>
+        </div>
+
+        <div id="loadingDiv" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>กำลังค้นหาข้อมูล...</p>
+        </div>
+
+        <div id="userInfo" class="user-info"></div>
+        <div id="logsSection" class="logs-section"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9sCku42XpwwwzEoVwajhtLH0x-cHxkrI",
+            authDomain: "scius-kku-15.firebaseapp.com",
+            databaseURL: "https://scius-kku-15-default-rtdb.firebaseio.com",
+            projectId: "scius-kku-15",
+            storageBucket: "scius-kku-15.firebasestorage.app",
+            messagingSenderId: "205868945050",
+            appId: "1:205868945050:web:70da904a5217bfcb619923",
+            measurementId: "G-KQX6F31070"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        async function searchUser() {
+            const email = document.getElementById('emailInput').value.trim();
+            
+            if (!email) {
+                alert('กรุณากรอกอีเมล');
+                return;
+            }
+
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('userInfo').classList.remove('active');
+            document.getElementById('logsSection').classList.remove('active');
+
+            try {
+                // Find user by email
+                const usersSnapshot = await database.ref('users').orderByChild('email').equalTo(email).once('value');
+                
+                if (!usersSnapshot.exists()) {
+                    alert('ไม่พบผู้ใช้นี้ในระบบ');
+                    document.getElementById('loadingDiv').style.display = 'none';
+                    return;
+                }
+
+                let userData = null;
+                let userId = null;
+                usersSnapshot.forEach(child => {
+                    userData = child.val();
+                    userId = child.key;
+                });
+
+                // Load all logs for this email
+                const logsSnapshot = await database.ref('examLogs')
+                    .orderByChild('email')
+                    .equalTo(email)
+                    .once('value');
+
+                const logs = [];
+                logsSnapshot.forEach(child => {
+                    logs.push({ id: child.key, ...child.val() });
+                });
+                logs.sort((a, b) => b.timestamp - a.timestamp);
+
+                // Load submissions
+                const submissionsSnapshot = await database.ref(`examSubmissions/${userId}`).once('value');
+                const submissions = [];
+                if (submissionsSnapshot.exists()) {
+                    submissionsSnapshot.forEach(child => {
+                        submissions.push({ subject: child.key, ...child.val() });
+                    });
+                }
+
+                // Load attempts (to get duration data)
+                const attemptsSnapshot = await database.ref(`examAttempts/${userId}`).once('value');
+                const attempts = {};
+                if (attemptsSnapshot.exists()) {
+                    attemptsSnapshot.forEach(subjectChild => {
+                        const subject = subjectChild.key;
+                        attempts[subject] = [];
+                        subjectChild.forEach(attemptChild => {
+                            attempts[subject].push({ id: attemptChild.key, ...attemptChild.val() });
+                        });
+                        // Sort by timestamp (newest first)
+                        attempts[subject].sort((a, b) => b.startTime - a.startTime);
+                    });
+                }
+
+                console.log('Loaded data:', {
+                    userData,
+                    logsCount: logs.length,
+                    submissions,
+                    attempts
+                });
+
+                displayUserInfo(userData, logs, submissions);
+                displayLogs(logs, submissions, attempts);
+
+                document.getElementById('loadingDiv').style.display = 'none';
+                document.getElementById('userInfo').classList.add('active');
+                document.getElementById('logsSection').classList.add('active');
+
+            } catch (error) {
+                console.error('Error searching user:', error);
+                alert('เกิดข้อผิดพลาดในการค้นหา');
+                document.getElementById('loadingDiv').style.display = 'none';
+            }
+        }
+
+        function displayUserInfo(userData, logs, submissions) {
+            const userInfo = document.getElementById('userInfo');
+            
+            const initials = userData.displayName 
+                ? userData.displayName.substring(0, 2).toUpperCase()
+                : userData.email.substring(0, 2).toUpperCase();
+
+            const mathSubmitted = submissions.find(s => s.subject === 'math');
+            const scienceSubmitted = submissions.find(s => s.subject === 'science');
+
+            userInfo.innerHTML = `
+                <div class="user-header">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="user-details">
+                        <h2>${userData.displayName || 'ไม่มีชื่อ'}</h2>
+                        <p><i class="fas fa-envelope"></i> ${userData.email}</p>
+                        <p><i class="fas fa-clock"></i> Login ครั้งแรก: ${userData.firstLogin ? new Date(userData.firstLogin).toLocaleString('th-TH') : '-'}</p>
+                        <p><i class="fas fa-sign-in-alt"></i> Login ล่าสุด: ${userData.lastLogin ? new Date(userData.lastLogin).toLocaleString('th-TH') : '-'}</p>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="label">จำนวน Logs</div>
+                        <div class="value">${logs.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">ส่งข้อสอบ</div>
+                        <div class="value">${submissions.length}/2</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">คณิตศาสตร์</div>
+                        <div class="value">${mathSubmitted ? '✓' : '✗'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">วิทยาศาสตร์</div>
+                        <div class="value">${scienceSubmitted ? '✓' : '✗'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayLogs(logs, submissions, attempts) {
+            const logsSection = document.getElementById('logsSection');
+            
+            const actionNames = {
+                'first_login': 'เข้าสู่ระบบครั้งแรก',
+                'start_exam': 'เริ่มทำข้อสอบ',
+                'view_exam_page': 'เข้าหน้าข้อสอบ',
+                'select_subject': 'เลือกวิชา'
+            };
+
+            const actionBadges = {
+                'first_login': 'badge-success',
+                'start_exam': 'badge-primary',
+                'view_exam_page': 'badge-info',
+                'select_subject': 'badge-warning'
+            };
+
+            let logsHTML = '<h2><i class="fas fa-history"></i> ประวัติการใช้งาน</h2>';
+
+            if (logs.length === 0) {
+                logsHTML += `
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>ไม่พบประวัติการใช้งาน</p>
+                    </div>
+                `;
+            } else {
+                logsHTML += '<div class="timeline">';
+                
+                logs.forEach(log => {
+                    const actionName = actionNames[log.action] || log.action;
+                    const badgeClass = actionBadges[log.action] || 'badge-info';
+                    const subject = log.data?.subject ? ` (${log.data.subject === 'math' ? 'คณิต' : 'วิทย์'})` : '';
+                    const details = log.data ? JSON.stringify(log.data) : '';
+
+                    logsHTML += `
+                        <div class="timeline-item type-${log.action}">
+                            <div class="timeline-time">
+                                <i class="fas fa-clock"></i> ${new Date(log.timestamp).toLocaleString('th-TH')}
+                            </div>
+                            <div class="timeline-action">
+                                ${actionName}${subject}
+                                <span class="badge ${badgeClass}">${log.action}</span>
+                            </div>
+                            ${details ? `<div class="timeline-details">${details}</div>` : ''}
+                        </div>
+                    `;
+                });
+
+                logsHTML += '</div>';
+            }
+
+            // Add submissions section
+            if (submissions.length > 0 || (attempts && Object.keys(attempts).length > 0)) {
+                logsHTML += `
+                    <div class="submissions-section">
+                        <h3><i class="fas fa-paper-plane"></i> การส่งข้อสอบและประวัติการทำ</h3>
+                `;
+
+                // Track which subjects have been displayed
+                const displayedSubjects = new Set();
+
+                submissions.forEach(submission => {
+                    displayedSubjects.add(submission.subject);
+                    const subjectName = submission.subject === 'math' ? 'คณิตศาสตร์' : 'วิทยาศาสตร์';
+                    const badgeClass = submission.subject === 'math' ? 'badge-primary' : 'badge-info';
+                    
+                    logsHTML += `
+                        <div class="submission-card" style="border-left: 4px solid ${submission.subject === 'math' ? '#007bff' : '#17a2b8'};">
+                            <div class="submission-header">
+                                <div class="submission-subject">
+                                    <span class="badge ${badgeClass}">${subjectName}</span>
+                                    <span style="margin-left: 10px; color: #28a745; font-weight: 600;">✓ ส่งแล้ว</span>
+                                </div>
+                                <div class="submission-time">
+                                    <i class="fas fa-calendar"></i> ${new Date(submission.timestamp).toLocaleString('th-TH')}
+                                </div>
+                            </div>
+                    `;
+
+                    // Show all attempts for this subject
+                    if (attempts && attempts[submission.subject] && attempts[submission.subject].length > 0) {
+                        logsHTML += `<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">`;
+                        logsHTML += `<div style="color: #666; font-size: 0.9em; margin-bottom: 10px;"><i class="fas fa-history"></i> ประวัติการทำ (${attempts[submission.subject].length} ครั้ง):</div>`;
+                        
+                        attempts[submission.subject].forEach((attempt, index) => {
+                            const attemptNum = attempts[submission.subject].length - index;
+                            const startTime = new Date(attempt.startTime);
+                            
+                            // Calculate endTime from startTime + duration (duration is in seconds)
+                            const durationMs = attempt.duration ? attempt.duration * 1000 : 0;
+                            const endTime = new Date(attempt.startTime + durationMs);
+                            
+                            const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                            const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+                            
+                            let durationStr = '';
+                            if (hours > 0) {
+                                durationStr = `${hours} ชม. ${minutes} นาที`;
+                            } else if (minutes > 0) {
+                                durationStr = `${minutes} นาที ${seconds} วิ`;
+                            } else {
+                                durationStr = `${seconds} วิ`;
+                            }
+
+                            const timeLimit = 3 * 60 * 60 * 1000;
+                            const onTime = durationMs <= timeLimit;
+                            
+                            // Check status
+                            const statusBadge = attempt.status === 'in_progress' 
+                                ? '<span class="badge badge-warning">⏳ กำลังทำ</span>'
+                                : attempt.status === 'completed'
+                                ? '<span class="badge badge-success">✓ เสร็จสิ้น</span>'
+                                : '';
+
+                            logsHTML += `
+                                <div style="background: ${index === 0 ? '#fff3cd' : 'white'}; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e0e0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                        <div style="font-weight: 600; color: #333;">
+                                            ${index === 0 ? '<i class="fas fa-star" style="color: #ffc107;"></i> ' : ''}
+                                            ครั้งที่ ${attemptNum}
+                                            ${statusBadge}
+                                        </div>
+                                        <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9em;">
+                                            <span><i class="fas fa-play"></i> ${startTime.toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                            ${attempt.duration ? `<span><i class="fas fa-stop"></i> ${endTime.toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+                                            ${attempt.duration ? `<span style="font-weight: 600;"><i class="fas fa-hourglass-half"></i> ${durationStr}</span>` : '<span style="color: #999;">ยังไม่มีข้อมูล</span>'}
+                                            ${attempt.duration ? (onTime 
+                                                ? '<span class="badge badge-success">✓ ทันเวลา</span>' 
+                                                : '<span class="badge badge-warning">⚠ เกินเวลา</span>'
+                                            ) : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        logsHTML += `</div>`;
+                    } else {
+                        // Fallback to examLogs if no attempts data
+                        const startLog = logs.find(log => 
+                            log.action === 'start_exam' && 
+                            log.data?.subject === submission.subject
+                        );
+
+                        if (startLog && startLog.timestamp) {
+                            const startTime = new Date(startLog.timestamp);
+                            const endTime = new Date(submission.timestamp);
+                            const durationMs = endTime - startTime;
+                            
+                            const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                            const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+                            
+                            let durationStr = '';
+                            if (hours > 0) {
+                                durationStr = `${hours} ชม. ${minutes} นาที`;
+                            } else if (minutes > 0) {
+                                durationStr = `${minutes} นาที ${seconds} วิ`;
+                            } else {
+                                durationStr = `${seconds} วิ`;
+                            }
+
+                            const timeLimit = 3 * 60 * 60 * 1000;
+                            const onTime = durationMs <= timeLimit;
+
+                            logsHTML += `
+                                <div class="submission-duration">
+                                    <div class="duration-item">
+                                        <i class="fas fa-play"></i>
+                                        <span>เริ่ม: ${startTime.toLocaleString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                                    </div>
+                                    <div class="duration-item">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span>ใช้เวลา: <span class="duration-value">${durationStr}</span></span>
+                                    </div>
+                                    <div class="duration-item">
+                                        ${onTime 
+                                            ? '<span class="badge badge-success">✓ ทันเวลา</span>' 
+                                            : '<span class="badge badge-warning">⚠ เกินเวลา</span>'
+                                        }
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    logsHTML += `</div>`;
+                });
+
+                // Show attempts for subjects that don't have submissions yet
+                if (attempts) {
+                    Object.keys(attempts).forEach(subject => {
+                        if (!displayedSubjects.has(subject) && attempts[subject].length > 0) {
+                            const subjectName = subject === 'math' ? 'คณิตศาสตร์' : 'วิทยาศาสตร์';
+                            const badgeClass = subject === 'math' ? 'badge-primary' : 'badge-info';
+                            
+                            logsHTML += `
+                                <div class="submission-card" style="border-left: 4px solid ${subject === 'math' ? '#007bff' : '#17a2b8'};">
+                                    <div class="submission-header">
+                                        <div class="submission-subject">
+                                            <span class="badge ${badgeClass}">${subjectName}</span>
+                                            <span style="margin-left: 10px; color: #ff9800; font-weight: 600;">⏳ กำลังทำ / ยังไม่ส่ง</span>
+                                        </div>
+                                    </div>
+                            `;
+
+                            // Show all attempts
+                            logsHTML += `<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">`;
+                            logsHTML += `<div style="color: #666; font-size: 0.9em; margin-bottom: 10px;"><i class="fas fa-history"></i> ประวัติการทำ (${attempts[subject].length} ครั้ง):</div>`;
+                            
+                            attempts[subject].forEach((attempt, index) => {
+                                const attemptNum = attempts[subject].length - index;
+                                const startTime = new Date(attempt.startTime);
+                                
+                                // Calculate endTime from startTime + duration (duration is in seconds)
+                                const durationMs = attempt.duration ? attempt.duration * 1000 : 0;
+                                const endTime = new Date(attempt.startTime + durationMs);
+                                
+                                const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                                const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                                const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+                                
+                                let durationStr = '';
+                                if (hours > 0) {
+                                    durationStr = `${hours} ชม. ${minutes} นาที`;
+                                } else if (minutes > 0) {
+                                    durationStr = `${minutes} นาที ${seconds} วิ`;
+                                } else {
+                                    durationStr = `${seconds} วิ`;
+                                }
+
+                                const timeLimit = 3 * 60 * 60 * 1000;
+                                const onTime = durationMs <= timeLimit;
+                                
+                                // Check status
+                                const statusBadge = attempt.status === 'in_progress' 
+                                    ? '<span class="badge badge-warning">⏳ กำลังทำ</span>'
+                                    : attempt.status === 'completed'
+                                    ? '<span class="badge badge-success">✓ เสร็จสิ้น</span>'
+                                    : '';
+
+                                logsHTML += `
+                                    <div style="background: ${index === 0 ? '#fff3cd' : 'white'}; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e0e0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                            <div style="font-weight: 600; color: #333;">
+                                                ${index === 0 ? '<i class="fas fa-star" style="color: #ffc107;"></i> ' : ''}
+                                                ครั้งที่ ${attemptNum}
+                                                ${statusBadge}
+                                            </div>
+                                            <div style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.9em;">
+                                                <span><i class="fas fa-play"></i> ${startTime.toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                                ${attempt.duration ? `<span><i class="fas fa-stop"></i> ${endTime.toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+                                                ${attempt.duration ? `<span style="font-weight: 600;"><i class="fas fa-hourglass-half"></i> ${durationStr}</span>` : '<span style="color: #999;">ยังไม่มีข้อมูล</span>'}
+                                                ${attempt.duration ? (onTime 
+                                                    ? '<span class="badge badge-success">✓ ทันเวลา</span>' 
+                                                    : '<span class="badge badge-warning">⚠ เกินเวลา</span>'
+                                                ) : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+
+                            logsHTML += `</div></div>`;
+                        }
+                    });
+                }
+
+                logsHTML += '</div>';
+            }
+
+            logsSection.innerHTML = logsHTML;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All User Logs - ประวัติการใช้งานทั้งหมด</title>
+    
+    <!-- Google Fonts - Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card .icon {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            color: #333;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .filter-box {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-controls input,
+        .filter-controls select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        .filter-controls input:focus,
+        .filter-controls select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-controls input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner {
+            border: 4px solid rgba(102, 126, 234, 0.2);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .users-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8em;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1.2em;
+        }
+
+        .user-info p {
+            color: #666;
+            margin: 3px 0;
+            font-size: 0.9em;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mini-stat {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .mini-stat .label {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+
+        .mini-stat .value {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .submissions-summary {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .subject-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subject-badge.submitted {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .subject-badge.not-submitted {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .subject-badge.in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .timeline {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .timeline-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-size: 0.9em;
+        }
+
+        .timeline-item.type-first_login { border-left-color: #28a745; }
+        .timeline-item.type-start_exam { border-left-color: #007bff; }
+        .timeline-item.type-view_exam_page { border-left-color: #17a2b8; }
+        .timeline-item.type-select_subject { border-left-color: #ffc107; }
+
+        .timeline-time {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .timeline-action {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .timeline-details {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-left: 5px;
+        }
+
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-primary { background: #cfe2ff; color: #084298; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+
+        .back-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .expand-btn {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .expand-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .attempts-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .attempt-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .attempt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .attempt-subject {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .attempt-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .attempt-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .attempt-details span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+
+        .no-data i {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .filter-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-controls input,
+            .filter-controls select {
+                width: 100%;
+            }
+
+            .user-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-table {
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .summary-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .summary-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .summary-table td {
+            color: #333;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600;
+            font-size: 1.05em;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .timeline-view-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-global {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .timeline-global::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+
+        .timeline-global-item {
+            position: relative;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s;
+            border-left: 4px solid #667eea;
+        }
+
+        .timeline-global-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-global-item::before {
+            content: '';
+            position: absolute;
+            left: -38px;
+            top: 25px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #667eea;
+            z-index: 1;
+        }
+
+        .timeline-global-item.type-first_login::before { border-color: #28a745; }
+        .timeline-global-item.type-first_login { border-left-color: #28a745; }
+        
+        .timeline-global-item.type-start_exam::before { border-color: #007bff; }
+        .timeline-global-item.type-start_exam { border-left-color: #007bff; }
+        
+        .timeline-global-item.type-view_exam_page::before { border-color: #17a2b8; }
+        .timeline-global-item.type-view_exam_page { border-left-color: #17a2b8; }
+        
+        .timeline-global-item.type-select_subject::before { border-color: #ffc107; }
+        .timeline-global-item.type-select_subject { border-left-color: #ffc107; }
+
+        .timeline-global-item.type-submit::before { border-color: #28a745; background: #28a745; }
+        .timeline-global-item.type-submit { border-left-color: #28a745; background: #d4edda; }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timeline-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timeline-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .timeline-user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeline-user-email {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .timeline-timestamp {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .timeline-action-info {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .timeline-action-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .timeline-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .timeline-filters select,
+        .timeline-filters input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.95em;
+        }
+
+        .date-group {
+            margin-bottom: 30px;
+        }
+
+        .date-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> กลับ Dashboard
+        </a>
+
+        <div class="header">
+            <h1><i class="fas fa-database"></i> ประวัติการใช้งานทั้งหมด</h1>
+            <p>ดูข้อมูลและประวัติการใช้งานของผู้ใช้ทั้งหมดในระบบ</p>
+            <div class="header-actions">
+                <button class="btn" onclick="loadAllData()">
+                    <i class="fas fa-sync-alt"></i> รีเฟรชข้อมูล
+                </button>
+                <button class="btn btn-export" onclick="exportToCSV()">
+                    <i class="fas fa-download"></i> ส่งออก CSV
+                </button>
+                <button class="btn btn-secondary" onclick="exportToJSON()">
+                    <i class="fas fa-file-code"></i> ส่งออก JSON
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-users"></i></div>
+                <div class="label">จำนวนผู้ใช้ทั้งหมด</div>
+                <div class="value" id="totalUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-chart-line"></i></div>
+                <div class="label">จำนวน Logs ทั้งหมด</div>
+                <div class="value" id="totalLogs">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-paper-plane"></i></div>
+                <div class="label">ส่งข้อสอบแล้ว</div>
+                <div class="value" id="totalSubmissions">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon"><i class="fas fa-check-circle"></i></div>
+                <div class="label">ส่งครบ 2 วิชา</div>
+                <div class="value" id="completedUsers">0</div>
+            </div>
+        </div>
+
+        <div class="filter-box">
+            <div class="filter-controls">
+                <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ หรือ อีเมล..." oninput="filterUsers()">
+                <select id="filterStatus" onchange="filterUsers()">
+                    <option value="all">ทั้งหมด</option>
+                    <option value="completed">ส่งครบ 2 วิชา</option>
+                    <option value="partial">ส่งบางส่วน</option>
+                    <option value="none">ยังไม่ส่ง</option>
+                </select>
+                <select id="sortBy" onchange="sortUsers()">
+                    <option value="name">เรียงตามชื่อ</option>
+                    <option value="email">เรียงตามอีเมล</option>
+                    <option value="logs">เรียงตาม Logs</option>
+                    <option value="lastLogin">เรียงตาม Login ล่าสุด</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" onclick="switchMode('users')" id="usersModeBtn">
+                <i class="fas fa-users"></i> แยกตามคน
+            </button>
+            <button class="mode-btn" onclick="switchMode('timeline')" id="timelineModeBtn">
+                <i class="fas fa-stream"></i> แยกตามเวลา
+            </button>
+        </div>
+
+        <div id="usersMode">
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="switchView('cards')" id="cardsViewBtn">
+                    <i class="fas fa-th-large"></i> การ์ด
+                </button>
+                <button class="view-btn" onclick="switchView('table')" id="tableViewBtn">
+                    <i class="fas fa-table"></i> ตาราง
+                </button>
+            </div>
+
+            <div id="tableView" class="summary-table" style="display: none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ลำดับ</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>อีเมล</th>
+                            <th>Logs</th>
+                            <th>คณิต</th>
+                            <th>วิทย์</th>
+                            <th>Login ล่าสุด</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="usersContainer" class="users-container"></div>
+        </div>
+
+        <div id="timelineMode" style="display: none;">
+            <div class="timeline-filters">
+                <select id="timelineActionFilter" onchange="filterTimeline()">
+                    <option value="all">ทุกกิจกรรม</option>
+                    <option value="first_login">เข้าสู่ระบบครั้งแรก</option>
+                    <option value="view_exam_page">เข้าหน้าข้อสอบ</option>
+                    <option value="start_exam">เริ่มทำข้อสอบ</option>
+                    <option value="select_subject">เลือกวิชา</option>
+                    <option value="submit">ส่งข้อสอบ</option>
+                </select>
+                <select id="timelineSubjectFilter" onchange="filterTimeline()">
+                    <option value="all">ทุกวิชา</option>
+                    <option value="math">คณิตศาสตร์</option>
+                    <option value="science">วิทยาศาสตร์</option>
+                </select>
+                <input type="text" id="timelineUserSearch" placeholder="🔍 ค้นหาผู้ใช้..." oninput="filterTimeline()">
+                <select id="timelineGroupBy" onchange="filterTimeline()">
+                    <option value="none">ไม่จัดกลุ่ม</option>
+                    <option value="date">จัดกลุ่มตามวัน</option>
+                </select>
+            </div>
+            <div id="timelineContainer" class="timeline-view-container">
+                <h2 style="margin-bottom: 20px; color: #333;">
+                    <i class="fas fa-stream"></i> Timeline ทั้งหมด
+                </h2>
+                <div id="timelineContent"></div>
+            </div>
+        </div>
+
+        <div id="loadingDiv" class="loading">
+            <div class="spinner"></div>
+            <p>กำลังโหลดข้อมูล...</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9sCku42XpwwwzEoVwajhtLH0x-cHxkrI",
+            authDomain: "scius-kku-15.firebaseapp.com",
+            databaseURL: "https://scius-kku-15-default-rtdb.firebaseio.com",
+            projectId: "scius-kku-15",
+            storageBucket: "scius-kku-15.firebasestorage.app",
+            messagingSenderId: "205868945050",
+            appId: "1:205868945050:web:70da904a5217bfcb619923",
+            measurementId: "G-KQX6F31070"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let allUsersData = [];
+        let filteredUsersData = [];
+        let currentView = 'cards';
+        let currentMode = 'users';
+        let allTimelineItems = [];
+        let filteredTimelineItems = [];
+
+        // Load all data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAllData();
+        });
+
+        async function loadAllData() {
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('usersContainer').style.display = 'none';
+            document.getElementById('tableView').style.display = 'none';
+
+            try {
+                // Load all users
+                const usersSnapshot = await database.ref('users').once('value');
+                const users = {};
+                usersSnapshot.forEach(child => {
+                    users[child.key] = { userId: child.key, ...child.val() };
+                });
+
+                // Load all logs
+                const logsSnapshot = await database.ref('examLogs').once('value');
+                const logsByEmail = {};
+                logsSnapshot.forEach(child => {
+                    const log = child.val();
+                    if (log.email) {
+                        if (!logsByEmail[log.email]) {
+                            logsByEmail[log.email] = [];
+                        }
+                        logsByEmail[log.email].push({ id: child.key, ...log });
+                    }
+                });
+
+                // Load all submissions
+                const submissionsSnapshot = await database.ref('examSubmissions').once('value');
+                const submissionsByUserId = {};
+                submissionsSnapshot.forEach(userChild => {
+                    const userId = userChild.key;
+                    submissionsByUserId[userId] = [];
+                    userChild.forEach(subjectChild => {
+                        submissionsByUserId[userId].push({
+                            subject: subjectChild.key,
+                            ...subjectChild.val()
+                        });
+                    });
+                });
+
+                // Load all attempts
+                const attemptsSnapshot = await database.ref('examAttempts').once('value');
+                const attemptsByUserId = {};
+                attemptsSnapshot.forEach(userChild => {
+                    const userId = userChild.key;
+                    attemptsByUserId[userId] = {};
+                    userChild.forEach(subjectChild => {
+                        const subject = subjectChild.key;
+                        attemptsByUserId[userId][subject] = [];
+                        subjectChild.forEach(attemptChild => {
+                            attemptsByUserId[userId][subject].push({
+                                id: attemptChild.key,
+                                ...attemptChild.val()
+                            });
+                        });
+                        // Sort by timestamp (newest first)
+                        attemptsByUserId[userId][subject].sort((a, b) => b.startTime - a.startTime);
+                    });
+                });
+
+                // Combine all data
+                allUsersData = Object.values(users).map(user => {
+                    const logs = logsByEmail[user.email] || [];
+                    const submissions = submissionsByUserId[user.userId] || [];
+                    const attempts = attemptsByUserId[user.userId] || {};
+                    
+                    return {
+                        ...user,
+                        logs: logs.sort((a, b) => b.timestamp - a.timestamp),
+                        submissions,
+                        attempts
+                    };
+                });
+
+                // Sort by name initially
+                allUsersData.sort((a, b) => {
+                    const nameA = (a.displayName || a.email).toLowerCase();
+                    const nameB = (b.displayName || b.email).toLowerCase();
+                    return nameA.localeCompare(nameB);
+                });
+
+                filteredUsersData = [...allUsersData];
+
+                updateStats();
+                buildTimeline();
+                displayUsers();
+
+                document.getElementById('loadingDiv').style.display = 'none';
+                if (currentMode === 'users') {
+                    if (currentView === 'cards') {
+                        document.getElementById('usersContainer').style.display = 'grid';
+                    } else {
+                        document.getElementById('tableView').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('timelineMode').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+                document.getElementById('loadingDiv').style.display = 'none';
+            }
+        }
+
+        function updateStats() {
+            const totalUsers = allUsersData.length;
+            const totalLogs = allUsersData.reduce((sum, user) => sum + user.logs.length, 0);
+            const totalSubmissions = allUsersData.reduce((sum, user) => sum + user.submissions.length, 0);
+            const completedUsers = allUsersData.filter(user => user.submissions.length >= 2).length;
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('totalLogs').textContent = totalLogs;
+            document.getElementById('totalSubmissions').textContent = totalSubmissions;
+            document.getElementById('completedUsers').textContent = completedUsers;
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterStatus = document.getElementById('filterStatus').value;
+
+            filteredUsersData = allUsersData.filter(user => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    (user.displayName && user.displayName.toLowerCase().includes(searchTerm)) ||
+                    user.email.toLowerCase().includes(searchTerm);
+
+                // Status filter
+                let matchesStatus = true;
+                if (filterStatus === 'completed') {
+                    matchesStatus = user.submissions.length >= 2;
+                } else if (filterStatus === 'partial') {
+                    matchesStatus = user.submissions.length === 1;
+                } else if (filterStatus === 'none') {
+                    matchesStatus = user.submissions.length === 0;
+                }
+
+                return matchesSearch && matchesStatus;
+            });
+
+            displayUsers();
+        }
+
+        function sortUsers() {
+            const sortBy = document.getElementById('sortBy').value;
+
+            filteredUsersData.sort((a, b) => {
+                switch (sortBy) {
+                    case 'name':
+                        const nameA = (a.displayName || a.email).toLowerCase();
+                        const nameB = (b.displayName || b.email).toLowerCase();
+                        return nameA.localeCompare(nameB);
+                    case 'email':
+                        return a.email.localeCompare(b.email);
+                    case 'logs':
+                        return b.logs.length - a.logs.length;
+                    case 'lastLogin':
+                        return (b.lastLogin || 0) - (a.lastLogin || 0);
+                    default:
+                        return 0;
+                }
+            });
+
+            displayUsers();
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            if (view === 'cards') {
+                document.getElementById('cardsViewBtn').classList.add('active');
+                document.getElementById('tableViewBtn').classList.remove('active');
+                document.getElementById('usersContainer').style.display = 'grid';
+                document.getElementById('tableView').style.display = 'none';
+            } else {
+                document.getElementById('tableViewBtn').classList.add('active');
+                document.getElementById('cardsViewBtn').classList.remove('active');
+                document.getElementById('usersContainer').style.display = 'none';
+                document.getElementById('tableView').style.display = 'block';
+            }
+            
+            displayUsers();
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            if (mode === 'users') {
+                document.getElementById('usersModeBtn').classList.add('active');
+                document.getElementById('timelineModeBtn').classList.remove('active');
+                document.getElementById('usersMode').style.display = 'block';
+                document.getElementById('timelineMode').style.display = 'none';
+                
+                // Show appropriate view
+                if (currentView === 'cards') {
+                    document.getElementById('usersContainer').style.display = 'grid';
+                    document.getElementById('tableView').style.display = 'none';
+                } else {
+                    document.getElementById('usersContainer').style.display = 'none';
+                    document.getElementById('tableView').style.display = 'block';
+                }
+            } else {
+                document.getElementById('timelineModeBtn').classList.add('active');
+                document.getElementById('usersModeBtn').classList.remove('active');
+                document.getElementById('usersMode').style.display = 'none';
+                document.getElementById('timelineMode').style.display = 'block';
+                document.getElementById('usersContainer').style.display = 'none';
+                document.getElementById('tableView').style.display = 'none';
+                
+                displayTimeline();
+            }
+        }
+
+        function displayUsers() {
+            if (currentView === 'cards') {
+                displayUsersCards();
+            } else {
+                displayUsersTable();
+            }
+        }
+
+        function displayUsersTable() {
+            const tableBody = document.getElementById('tableBody');
+            
+            if (filteredUsersData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                            <i class="fas fa-inbox" style="font-size: 3em; display: block; margin-bottom: 15px; opacity: 0.3;"></i>
+                            ไม่พบข้อมูล
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            filteredUsersData.forEach((user, index) => {
+                const mathSubmitted = user.submissions.find(s => s.subject === 'math');
+                const scienceSubmitted = user.submissions.find(s => s.subject === 'science');
+                
+                const mathStatus = mathSubmitted ? '✓' : (user.attempts.math ? '⏳' : '✗');
+                const scienceStatus = scienceSubmitted ? '✓' : (user.attempts.science ? '⏳' : '✗');
+                
+                const mathColor = mathSubmitted ? '#28a745' : (user.attempts.math ? '#ff9800' : '#dc3545');
+                const scienceColor = scienceSubmitted ? '#28a745' : (user.attempts.science ? '#ff9800' : '#dc3545');
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><strong>${user.displayName || '-'}</strong></td>
+                        <td>${user.email}</td>
+                        <td><strong>${user.logs.length}</strong></td>
+                        <td style="color: ${mathColor}; font-weight: 600; font-size: 1.2em;">${mathStatus}</td>
+                        <td style="color: ${scienceColor}; font-weight: 600; font-size: 1.2em;">${scienceStatus}</td>
+                        <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+        }
+
+        function displayUsersCards() {
+            const container = document.getElementById('usersContainer');
+            
+            if (filteredUsersData.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>ไม่พบข้อมูลผู้ใช้</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            
+            filteredUsersData.forEach(user => {
+                const initials = user.displayName 
+                    ? user.displayName.substring(0, 2).toUpperCase()
+                    : user.email.substring(0, 2).toUpperCase();
+
+                const mathSubmitted = user.submissions.find(s => s.subject === 'math');
+                const scienceSubmitted = user.submissions.find(s => s.subject === 'science');
+
+                html += `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-info">
+                                <h3>${user.displayName || 'ไม่มีชื่อ'}</h3>
+                                <p><i class="fas fa-envelope"></i> ${user.email}</p>
+                                <p><i class="fas fa-clock"></i> Login ล่าสุด: ${user.lastLogin ? new Date(user.lastLogin).toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</p>
+                            </div>
+                        </div>
+
+                        <div class="user-stats">
+                            <div class="mini-stat">
+                                <div class="label">จำนวน Logs</div>
+                                <div class="value">${user.logs.length}</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="label">ส่งข้อสอบ</div>
+                                <div class="value">${user.submissions.length}/2</div>
+                            </div>
+                        </div>
+
+                        <div class="submissions-summary">
+                            ${mathSubmitted 
+                                ? `<span class="subject-badge submitted"><i class="fas fa-check-circle"></i> คณิตศาสตร์</span>`
+                                : user.attempts.math
+                                ? `<span class="subject-badge in-progress"><i class="fas fa-hourglass-half"></i> คณิตศาสตร์</span>`
+                                : `<span class="subject-badge not-submitted"><i class="fas fa-times-circle"></i> คณิตศาสตร์</span>`
+                            }
+                            ${scienceSubmitted 
+                                ? `<span class="subject-badge submitted"><i class="fas fa-check-circle"></i> วิทยาศาสตร์</span>`
+                                : user.attempts.science
+                                ? `<span class="subject-badge in-progress"><i class="fas fa-hourglass-half"></i> วิทยาศาสตร์</span>`
+                                : `<span class="subject-badge not-submitted"><i class="fas fa-times-circle"></i> วิทยาศาสตร์</span>`
+                            }
+                        </div>
+
+                        ${generateAttemptsSection(user)}
+                        ${generateLogsSection(user)}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function generateAttemptsSection(user) {
+            let html = '';
+            
+            const hasAttempts = user.attempts && (
+                (user.attempts.math && user.attempts.math.length > 0) || 
+                (user.attempts.science && user.attempts.science.length > 0)
+            );
+
+            if (!hasAttempts) {
+                return '';
+            }
+
+            html += '<div class="attempts-section">';
+            html += '<h4 style="margin-bottom: 15px; color: #333;"><i class="fas fa-history"></i> ประวัติการทำข้อสอบ</h4>';
+
+            ['math', 'science'].forEach(subject => {
+                if (user.attempts[subject] && user.attempts[subject].length > 0) {
+                    const subjectName = subject === 'math' ? 'คณิตศาสตร์' : 'วิทยาศาสตร์';
+                    const subjectColor = subject === 'math' ? '#007bff' : '#17a2b8';
+                    const submitted = user.submissions.find(s => s.subject === subject);
+
+                    html += `
+                        <div class="attempt-card" style="border-left-color: ${subjectColor};">
+                            <div class="attempt-header">
+                                <div class="attempt-subject">
+                                    ${subjectName}
+                                    ${submitted 
+                                        ? '<span class="badge badge-success">✓ ส่งแล้ว</span>'
+                                        : '<span class="badge badge-warning">⏳ กำลังทำ / ยังไม่ส่ง</span>'
+                                    }
+                                </div>
+                                <div style="font-size: 0.9em; color: #666;">
+                                    ${user.attempts[subject].length} ครั้ง
+                                </div>
+                            </div>
+                    `;
+
+                    // Show latest 3 attempts
+                    user.attempts[subject].slice(0, 3).forEach((attempt, index) => {
+                        const attemptNum = user.attempts[subject].length - index;
+                        const startTime = new Date(attempt.startTime);
+                        const durationMs = attempt.duration ? attempt.duration * 1000 : 0;
+                        const endTime = new Date(attempt.startTime + durationMs);
+                        
+                        const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                        const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+                        
+                        let durationStr = '';
+                        if (hours > 0) {
+                            durationStr = `${hours} ชม. ${minutes} นาที`;
+                        } else if (minutes > 0) {
+                            durationStr = `${minutes} นาที ${seconds} วิ`;
+                        } else if (seconds > 0) {
+                            durationStr = `${seconds} วิ`;
+                        } else {
+                            durationStr = 'ยังไม่มีข้อมูล';
+                        }
+
+                        const timeLimit = 3 * 60 * 60 * 1000;
+                        const onTime = durationMs > 0 && durationMs <= timeLimit;
+                        
+                        const statusBadge = attempt.status === 'in_progress' 
+                            ? '<span class="badge badge-warning">⏳ กำลังทำ</span>'
+                            : attempt.status === 'completed'
+                            ? '<span class="badge badge-success">✓ เสร็จสิ้น</span>'
+                            : '';
+
+                        html += `
+                            <div style="background: ${index === 0 ? '#fff3cd' : 'white'}; padding: 10px; border-radius: 6px; margin-top: 8px; font-size: 0.9em;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                    <div style="font-weight: 600;">
+                                        ${index === 0 ? '<i class="fas fa-star" style="color: #ffc107;"></i> ' : ''}
+                                        ครั้งที่ ${attemptNum}
+                                        ${statusBadge}
+                                    </div>
+                                    <div class="attempt-details">
+                                        <span><i class="fas fa-play"></i> ${startTime.toLocaleString('th-TH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                                        ${attempt.duration ? `<span><i class="fas fa-hourglass-half"></i> ${durationStr}</span>` : ''}
+                                        ${durationMs > 0 ? (onTime 
+                                            ? '<span class="badge badge-success">✓ ทันเวลา</span>' 
+                                            : '<span class="badge badge-warning">⚠ เกินเวลา</span>'
+                                        ) : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    if (user.attempts[subject].length > 3) {
+                        html += `<div style="text-align: center; margin-top: 10px; color: #666; font-size: 0.9em;">+ อีก ${user.attempts[subject].length - 3} ครั้ง</div>`;
+                    }
+
+                    html += '</div>';
+                }
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        function generateLogsSection(user) {
+            if (user.logs.length === 0) {
+                return '';
+            }
+
+            const actionNames = {
+                'first_login': 'เข้าสู่ระบบครั้งแรก',
+                'start_exam': 'เริ่มทำข้อสอบ',
+                'view_exam_page': 'เข้าหน้าข้อสอบ',
+                'select_subject': 'เลือกวิชา'
+            };
+
+            let html = `
+                <button class="expand-btn" onclick="toggleLogs(this)">
+                    <i class="fas fa-chevron-down"></i> ดู Logs ทั้งหมด (${user.logs.length} รายการ)
+                </button>
+                <div class="timeline" style="display: none;">
+            `;
+
+            // Show latest 20 logs
+            user.logs.slice(0, 20).forEach(log => {
+                const actionName = actionNames[log.action] || log.action;
+                const subject = log.data?.subject ? ` (${log.data.subject === 'math' ? 'คณิต' : 'วิทย์'})` : '';
+
+                html += `
+                    <div class="timeline-item type-${log.action}">
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i> ${new Date(log.timestamp).toLocaleString('th-TH')}
+                        </div>
+                        <div class="timeline-action">${actionName}${subject}</div>
+                    </div>
+                `;
+            });
+
+            if (user.logs.length > 20) {
+                html += `<div style="text-align: center; padding: 10px; color: #666; font-size: 0.9em;">+ อีก ${user.logs.length - 20} รายการ</div>`;
+            }
+
+            html += '</div>';
+            return html;
+        }
+
+        function toggleLogs(btn) {
+            const timeline = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            
+            if (timeline.style.display === 'none') {
+                timeline.style.display = 'block';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                btn.innerHTML = btn.innerHTML.replace('ดู Logs', 'ซ่อน Logs');
+            } else {
+                timeline.style.display = 'none';
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                btn.innerHTML = btn.innerHTML.replace('ซ่อน Logs', 'ดู Logs');
+            }
+        }
+
+        function exportToCSV() {
+            // Add BOM for UTF-8 to support Thai characters in Excel
+            const BOM = '\uFEFF';
+            let csv = BOM + 'ลำดับ,ชื่อ-นามสกุล,อีเมล,จำนวน Logs,ส่งข้อสอบ,คณิตศาสตร์,วิทยาศาสตร์,Login ครั้งแรก,Login ล่าสุด\n';
+            
+            allUsersData.forEach((user, index) => {
+                const mathSubmitted = user.submissions.find(s => s.subject === 'math');
+                const scienceSubmitted = user.submissions.find(s => s.subject === 'science');
+                
+                const mathStatus = mathSubmitted ? 'ส่งแล้ว' : (user.attempts.math ? 'กำลังทำ' : 'ยังไม่ทำ');
+                const scienceStatus = scienceSubmitted ? 'ส่งแล้ว' : (user.attempts.science ? 'กำลังทำ' : 'ยังไม่ทำ');
+                
+                csv += `${index + 1},"${user.displayName || '-'}","${user.email}",${user.logs.length},${user.submissions.length}/2,"${mathStatus}","${scienceStatus}","${user.firstLogin ? new Date(user.firstLogin).toLocaleString('th-TH') : '-'}","${user.lastLogin ? new Date(user.lastLogin).toLocaleString('th-TH') : '-'}"\n`;
+            });
+
+            downloadFile(csv, 'user-logs.csv', 'text/csv;charset=utf-8;');
+        }
+
+        function exportToJSON() {
+            const data = JSON.stringify(allUsersData, null, 2);
+            downloadFile(data, 'user-logs.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ========== Timeline Functions ==========
+        
+        function buildTimeline() {
+            allTimelineItems = [];
+            
+            // Collect all logs from all users
+            allUsersData.forEach(user => {
+                user.logs.forEach(log => {
+                    allTimelineItems.push({
+                        ...log,
+                        userData: {
+                            userId: user.userId,
+                            displayName: user.displayName,
+                            email: user.email
+                        },
+                        type: 'log'
+                    });
+                });
+                
+                // Add submissions as timeline items
+                user.submissions.forEach(submission => {
+                    allTimelineItems.push({
+                        action: 'submit',
+                        timestamp: submission.timestamp,
+                        data: { subject: submission.subject },
+                        userData: {
+                            userId: user.userId,
+                            displayName: user.displayName,
+                            email: user.email
+                        },
+                        type: 'submission'
+                    });
+                });
+            });
+            
+            // Sort by timestamp (newest first)
+            allTimelineItems.sort((a, b) => b.timestamp - a.timestamp);
+            filteredTimelineItems = [...allTimelineItems];
+        }
+
+        function filterTimeline() {
+            const actionFilter = document.getElementById('timelineActionFilter').value;
+            const subjectFilter = document.getElementById('timelineSubjectFilter').value;
+            const userSearch = document.getElementById('timelineUserSearch').value.toLowerCase();
+            
+            filteredTimelineItems = allTimelineItems.filter(item => {
+                // Action filter
+                if (actionFilter !== 'all' && item.action !== actionFilter) {
+                    return false;
+                }
+                
+                // Subject filter
+                if (subjectFilter !== 'all') {
+                    if (!item.data || !item.data.subject || item.data.subject !== subjectFilter) {
+                        return false;
+                    }
+                }
+                
+                // User search
+                if (userSearch) {
+                    const matchesName = item.userData.displayName && 
+                        item.userData.displayName.toLowerCase().includes(userSearch);
+                    const matchesEmail = item.userData.email.toLowerCase().includes(userSearch);
+                    
+                    if (!matchesName && !matchesEmail) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            displayTimeline();
+        }
+
+        function displayTimeline() {
+            const container = document.getElementById('timelineContent');
+            const groupBy = document.getElementById('timelineGroupBy').value;
+            
+            if (filteredTimelineItems.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <p>ไม่พบข้อมูล</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const actionNames = {
+                'first_login': 'เข้าสู่ระบบครั้งแรก',
+                'start_exam': 'เริ่มทำข้อสอบ',
+                'view_exam_page': 'เข้าหน้าข้อสอบ',
+                'select_subject': 'เลือกวิชา',
+                'submit': 'ส่งข้อสอบ'
+            };
+
+            let html = '';
+            
+            if (groupBy === 'date') {
+                // Group by date
+                const itemsByDate = {};
+                
+                filteredTimelineItems.forEach(item => {
+                    const date = new Date(item.timestamp);
+                    const dateKey = date.toLocaleDateString('th-TH', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    
+                    if (!itemsByDate[dateKey]) {
+                        itemsByDate[dateKey] = [];
+                    }
+                    itemsByDate[dateKey].push(item);
+                });
+                
+                Object.keys(itemsByDate).forEach(dateKey => {
+                    html += `
+                        <div class="date-group">
+                            <div class="date-header">
+                                <i class="fas fa-calendar-day"></i>
+                                ${dateKey} (${itemsByDate[dateKey].length} รายการ)
+                            </div>
+                            <div class="timeline-global">
+                    `;
+                    
+                    itemsByDate[dateKey].forEach(item => {
+                        html += generateTimelineItemHTML(item, actionNames);
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                // No grouping
+                html += '<div class="timeline-global">';
+                
+                filteredTimelineItems.forEach(item => {
+                    html += generateTimelineItemHTML(item, actionNames);
+                });
+                
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function generateTimelineItemHTML(item, actionNames) {
+            const initials = item.userData.displayName 
+                ? item.userData.displayName.substring(0, 2).toUpperCase()
+                : item.userData.email.substring(0, 2).toUpperCase();
+            
+            const actionName = actionNames[item.action] || item.action;
+            const subject = item.data?.subject ? ` (${item.data.subject === 'math' ? 'คณิตศาสตร์' : 'วิทยาศาสตร์'})` : '';
+            
+            const timestamp = new Date(item.timestamp);
+            const timeStr = timestamp.toLocaleString('th-TH', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            return `
+                <div class="timeline-global-item type-${item.action}">
+                    <div class="timeline-header">
+                        <div class="timeline-user">
+                            <div class="timeline-user-avatar">${initials}</div>
+                            <div>
+                                <div class="timeline-user-name">${item.userData.displayName || 'ไม่มีชื่อ'}</div>
+                                <div class="timeline-user-email">${item.userData.email}</div>
+                            </div>
+                        </div>
+                        <div class="timeline-timestamp">
+                            <i class="fas fa-clock"></i> ${timeStr}
+                        </div>
+                    </div>
+                    <div class="timeline-action-info">
+                        <div class="timeline-action-name">
+                            <i class="fas fa-${getActionIcon(item.action)}"></i>
+                            ${actionName}${subject}
+                            <span class="badge ${getBadgeClass(item.action)}">${item.action}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getActionIcon(action) {
+            const icons = {
+                'first_login': 'sign-in-alt',
+                'start_exam': 'play-circle',
+                'view_exam_page': 'eye',
+                'select_subject': 'hand-pointer',
+                'submit': 'paper-plane'
+            };
+            return icons[action] || 'circle';
+        }
+
+        function getBadgeClass(action) {
+            const classes = {
+                'first_login': 'badge-success',
+                'start_exam': 'badge-primary',
+                'view_exam_page': 'badge-info',
+                'select_subject': 'badge-warning',
+                'submit': 'badge-success'
+            };
+            return classes[action] || 'badge-info';
+        }
+    </script>
+</body>
+</html>

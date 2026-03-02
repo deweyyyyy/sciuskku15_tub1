@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทำข้อสอบ - Road to SCiUS KKU 16</title>
+    
+    <!-- Google Fonts - Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.0/dist/sweetalert2.all.min.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KQX6F31070"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-KQX6F31070');
+</script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overscroll-behavior: none; /* ป้องกัน pull-to-refresh */
+        }
+
+        body.exam-active {
+            overflow: hidden; /* ป้องกันหน้าเว็บหลักเลื่อน เฉพาะตอนทำข้อสอบ */
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 10px;
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 0px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 8px 8px;
+            }
+
+            .header h1 {
+                font-size: 1em;
+                margin-bottom: 0px;
+            }
+
+            .header p {
+                font-size: 0.85em;
+            }
+        }
+
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 6px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .timer {
+                font-size: 1.5em;
+                margin: 8px 0;
+                padding: 10px 15px;
+            }
+        }
+
+        .timer.overtime {
+            background: rgba(255, 82, 82, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .content {
+            padding: 15px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 10px;
+            }
+        }
+
+        .intro-section {
+            line-height: 1.8;
+        }
+
+        .intro-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .intro-section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .intro-section p, .intro-section ul {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .intro-section ul {
+            margin-left: 30px;
+        }
+
+        .intro-section li {
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .warning-box h4 i,
+        .info-box h4 i {
+            margin-right: 8px;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 5px;
+        }
+
+        .info-box h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 30px;
+        }
+
+        .start-btn i {
+            margin-right: 10px;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .exam-container {
+            display: none;
+        }
+
+        .exam-container.active {
+            display: block;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 70vh;
+            border: none;
+            border-radius: 10px;
+            overflow: auto; /* อนุญาตให้เลื่อนใน iframe */
+            position: relative;
+            -webkit-overflow-scrolling: touch; /* smooth scroll บน iOS */
+        }
+
+        @media (max-width: 768px) {
+            .iframe-container {
+                height: 70vh;
+                border-radius: 5px;
+            }
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 7px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-size: 0.8em;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .status-bar {
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+        }
+
+        .scroll-toggle-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .scroll-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .scroll-toggle-btn i {
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-toggle-btn {
+                padding: 6px 12px;
+                font-size: 0.75em;
+            }
+        }
+
+        .user-email {
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .user-email {
+                font-size: 12px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="subjectTitle">ระบบทำข้อสอบ</h1>
+            <div class="timer" id="timer">00:00:00</div>
+            <div style="font-size: 0.9em; opacity: 0.9;">
+            </div>
+        </div>
+
+        <div class="status-bar" id="statusBar">
+            <div class="user-email" id="userEmail"></div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="scroll-toggle-btn" id="scrollToggleBtn" onclick="toggleScroll()" style="display: none;">
+                    <i class="fas fa-lock"></i>
+                    <span id="scrollToggleText">ปลดล็อกการเลื่อน</span>
+                </button>
+                <a href="index.html" class="back-btn">← กลับหน้าหลัก</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Introduction Section -->
+            <div class="intro-section" id="introSection">
+                <div id="introContent"></div>
+                
+                <div class="warning-box">
+                    <h4><i class="fas fa-exclamation-triangle"></i> คำเตือน</h4>
+                    <p>• ระบบจะบันทึกเวลาที่คุณใช้ในการทำข้อสอบ</p>
+                    <p>• เวลาที่แนะนำในการทำข้อสอบคือ 90 นาที</p>
+                    <p>• สามารถทำได้หลายรอบ ระบบจะเก็บประวัติทุกครั้งที่ทำไว้</p>
+                    <p>• แต่ละรอบจะถูกบันทึกเป็น session แยกกัน</p>
+                </div>
+
+                <button class="start-btn" onclick="confirmStart()">
+                    <i class="fas fa-rocket"></i> เริ่มทำข้อสอบ
+                </button>
+            </div>
+
+            <!-- Loading Section -->
+            <div class="loading" id="loadingSection" style="display: none;">
+                <div class="spinner"></div>
+                <p style="color: #666; font-size: 1.1em;">กำลังโหลดข้อสอบ...</p>
+            </div>
+
+            <!-- Exam Section -->
+            <div class="exam-container" id="examContainer">
+                <div class="iframe-container">
+                    <iframe id="examFrame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9sCku42XpwwwzEoVwajhtLH0x-cHxkrI",
+            authDomain: "scius-kku-15.firebaseapp.com",
+            databaseURL: "https://scius-kku-15-default-rtdb.firebaseio.com",
+            projectId: "scius-kku-15",
+            storageBucket: "scius-kku-15.firebasestorage.app",
+            messagingSenderId: "205868945050",
+            appId: "1:205868945050:web:70da904a5217bfcb619923",
+            measurementId: "G-KQX6F31070"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUser = null;
+        let subject = null;
+        let startTime = null;
+        let timerInterval = null;
+        let submissionCheckInterval = null;
+        let hasSubmitted = false;
+
+        // Subject configurations
+        const subjectConfig = {
+            math: {
+                title: 'คณิตศาสตร์ - MATHEMATICS',
+                formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSeSSs_C5iNqQqIyPfgTTHWN1cK7GnYw7xMklx9Uto2XkOKifQ/viewform?usp=pp_url&entry.1940543397=',
+                intro: `
+                    <h2>คณิตศาสตร์ - MATHEMATICS - Road to SCiUS KKU 16</h2>
+                    
+                    <h3>สัดส่วนคะแนน</h3>
+                    <ul>
+                        <li>โจทย์พื้นฐาน - 12 ข้อ ข้อละ 2.5 Pts = 30 Pts</li>
+                        <li>โจทย์ประยุกต์ - 10 ข้อ ข้อละ 4 Pts = 40 Pts</li>
+                        <li>Unseen - 5 ข้อ รวม 20 Pts</li>
+                        <li>BONUS +5/-3/0</li>
+                    </ul>
+                    <p><strong>รวม 27 ข้อ เต็ม 90 คะแนน</strong></p>
+                    
+                    <h3>ข้อตกลงในการทำข้อสอบ</h3>
+                    <ul>
+                        <li>ให้เริ่มทำหลังจากกรรมการให้สัญญาณในการทำข้อสอบเท่านั้น</li>
+                        <li>รูปภาพหรือเรขาคณิตในข้อสอบไม่เป็นไปตามสัดส่วนจริง</li>
+                        <li>ให้เลือกตอบคำตอบที่ถูกต้องที่สุดเท่านั้น</li>
+                        <li>ห้ามเผยแพร่ข้อสอบชุดนี้ทุกกรณี เว้นแต่ได้รับอนุญาต</li>
+                    </ul>
+                    
+                    <div class="info-box">
+                        <h4><i class="fas fa-clock"></i> เวลาในการทำข้อสอบ</h4>
+                        <p>เวลาแนะนำในการทำข้อสอบ: <strong>1 ชั่วโมง 30 นาที</strong></p>
+                    </div>
+                `
+            },
+            science: {
+                title: 'วิทยาศาสตร์ - SCIENCE',
+                formUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSdrKOL3hfAkj72QAcZHWeS91kIoChTH-pGTEsefllI4xoOgCw/viewform?usp=pp_url&entry.1462762993=',
+                intro: `
+                    <h2>วิทยาศาสตร์ - SCIENCE - Road to SCiUS KKU 16</h2>
+                    
+                    <h3>สัดส่วนคะแนน</h3>
+                    <ul>
+                        <li>Level I - 15 ข้อ ข้อละ 1.5 Pts = 22.5 Pts</li>
+                        <li>Level II - 13 ข้อ ข้อละ 2.5 Pts = 32.5 Pts</li>
+                        <li>Level III - 7 ข้อ ข้อละ 5.0 Pts = 35 Pts</li>
+                    </ul>
+                    <p>แบ่งเป็น ชีววิทยา, เคมี, ฟิสิกส์ วิชาละ 12, 12, 11 ข้อตามลำดับ</p>
+                    <p><strong>รวม 35 ข้อ เต็ม 90 คะแนน</strong></p>
+                    
+                    <h3>ข้อตกลงในการทำข้อสอบ</h3>
+                    <ul>
+                        <li>กำหนดให้ความเร่งเนื่องจากแรงโน้มถ่วงของโลก (g) มีค่าเป็น 10 m/s²</li>
+                        <li>ให้เริ่มทำหลังจากกรรมการให้สัญญาณในการทำข้อสอบเท่านั้น</li>
+                        <li>ต้องเลือกตัวเลือกที่ถูกต้องให้ครบทุกตัวเลือกจึงจะได้คะแนน</li>
+                        <li>ห้ามเผยแพร่ข้อสอบชุดนี้ทุกกรณี เว้นแต่ได้รับอนุญาต</li>
+                    </ul>
+                    
+                    <div class="info-box">
+                        <h4><i class="fas fa-clock"></i> เวลาในการทำข้อสอบ</h4>
+                        <p>เวลาแนะนำในการทำข้อสอบ: <strong>1 ชั่วโมง 30 นาที</strong></p>
+                    </div>
+                `
+            }
+        };
+
+        // Get URL parameter
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Initialize
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                initializePage();
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function initializePage() {
+            subject = getUrlParameter('subject');
+            
+            if (!subject || !subjectConfig[subject]) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Check previous submissions and attempts (for info only)
+            const submissionRef = database.ref(`examSubmissions/${currentUser.uid}/${subject}`);
+            const attemptsRef = database.ref(`examAttempts/${currentUser.uid}/${subject}`);
+            
+            const [submissionSnapshot, attemptsSnapshot] = await Promise.all([
+                submissionRef.once('value'),
+                attemptsRef.once('value')
+            ]);
+            
+            // Count submissions
+            let submissionCount = 0;
+            let submissions = [];
+            if (submissionSnapshot.exists()) {
+                submissionSnapshot.forEach((childSnapshot) => {
+                    const subData = childSnapshot.val();
+                    if (subData && subData.timestamp) {
+                        submissionCount++;
+                        submissions.push(subData);
+                    }
+                });
+            }
+            
+            // Count attempts
+            let attemptCount = 0;
+            let attempts = [];
+            if (attemptsSnapshot.exists()) {
+                attemptsSnapshot.forEach((childSnapshot) => {
+                    const attemptData = childSnapshot.val();
+                    if (attemptData && attemptData.startTime) {
+                        attemptCount++;
+                        attempts.push(attemptData);
+                    }
+                });
+            }
+            
+            // Sort submissions and attempts (newest first)
+            submissions.sort((a, b) => b.timestamp - a.timestamp);
+            attempts.sort((a, b) => b.startTime - a.startTime);
+            
+            // Show info if there are previous submissions or attempts
+            if (submissionCount > 0 || attemptCount > 0) {
+                let historyHtml = '';
+                
+                // Show submissions
+                if (submissionCount > 0) {
+                    historyHtml += `<h4 style="color: #28a745; margin-bottom: 10px;"><i class="fas fa-check-circle"></i> ประวัติการส่งข้อสอบ (${submissionCount} ครั้ง)</h4>`;
+                    submissions.slice(0, 5).forEach((sub, index) => {
+                        const subDate = new Date(sub.timestamp);
+                        historyHtml += `
+                            <p style="font-size: 0.95em; margin: 5px 0;">
+                                <strong>ส่งครั้งที่ ${index + 1}:</strong> ${subDate.toLocaleString('th-TH')}
+                            </p>
+                        `;
+                    });
+                    if (submissionCount > 5) {
+                        historyHtml += `<p style="font-size: 0.9em; color: #666; margin-top: 5px;">และอีก ${submissionCount - 5} ครั้ง...</p>`;
+                    }
+                    historyHtml += `<hr style="margin: 15px 0;">`;
+                }
+                
+                // Show attempts
+                if (attemptCount > 0) {
+                    historyHtml += `<h4 style="color: #667eea; margin-bottom: 10px;"><i class="fas fa-history"></i> ประวัติการเข้าทำข้อสอบ (${attemptCount} ครั้ง)</h4>`;
+                    attempts.slice(0, 5).forEach((att, index) => {
+                        const startDate = new Date(att.startTime);
+                        const duration = att.duration || 0;
+                        const hours = Math.floor(duration / 3600);
+                        const minutes = Math.floor((duration % 3600) / 60);
+                        const seconds = duration % 60;
+                        const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                        const status = att.status === 'completed' ? '✓ เสร็จสิ้น' : '⌛ ไม่สมบูรณ์';
+                        
+                        historyHtml += `
+                            <p style="font-size: 0.95em; margin: 5px 0;">
+                                <strong>ครั้งที่ ${index + 1}:</strong> ${startDate.toLocaleString('th-TH')} 
+                                (ใช้เวลา: ${timeStr}) ${status}
+                            </p>
+                        `;
+                    });
+                    if (attemptCount > 5) {
+                        historyHtml += `<p style="font-size: 0.9em; color: #666; margin-top: 5px;">และอีก ${attemptCount - 5} ครั้ง...</p>`;
+                    }
+                }
+                
+                const result = await Swal.fire({
+                    icon: 'info',
+                    title: 'คุณเคยทำข้อสอบนี้แล้ว',
+                    html: `
+                        <div style="text-align: left; padding: 10px;">
+                            ${historyHtml}
+                            <hr style="margin: 15px 0;">
+                            <p style="color: #28a745; text-align: center;">
+                                <i class="fas fa-info-circle"></i> คุณสามารถทำข้อสอบใหม่ได้เสมอ
+                            </p>
+                            <p style="color: #666; font-size: 0.9em; text-align: center;">
+                                ระบบจะบันทึกทุกครั้งที่ทำไว้เป็นประวัติ
+                            </p>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#667eea',
+                    confirmButtonText: '<i class="fas fa-redo"></i> ทำข้อสอบอีกครั้ง',
+                    cancelButtonText: '<i class="fas fa-arrow-left"></i> กลับหน้าหลัก'
+                });
+
+                if (!result.isConfirmed) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+            }
+
+            // Set up page
+            const config = subjectConfig[subject];
+            document.getElementById('subjectTitle').textContent = config.title;
+            document.getElementById('introContent').innerHTML = config.intro;
+            document.getElementById('userEmail').textContent = currentUser.email;
+
+            // Log page view
+            await logAction('view_exam_page', { subject });
+        }
+
+        async function confirmStart() {
+            const result = await Swal.fire({
+                icon: 'warning',
+                title: 'ยืนยันการเริ่มทำข้อสอบ',
+                html: `
+                    <p>คุณพร้อมเริ่มทำข้อสอบแล้วใช่หรือไม่?</p>
+                    <br>
+                    <div style="text-align: left; padding: 0 20px;">
+                        <p><i class="fas fa-clock"></i> เวลาที่แนะนำ: <strong>90 นาที</strong></p>
+                        <p><i class="fas fa-save"></i> ระบบจะบันทึกเวลาที่คุณใช้</p>
+                        <p><i class="fas fa-info-circle"></i> สามารถทำซ้ำได้หากเน็ตหลุด</p>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-check"></i> เริ่มทำข้อสอบ',
+                cancelButtonText: '<i class="fas fa-times"></i> ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                await startExam();
+            }
+        }
+
+        async function startExam() {
+            // Show loading
+            document.getElementById('introSection').style.display = 'none';
+            document.getElementById('loadingSection').style.display = 'block';
+
+            startTime = Date.now();
+
+            // Record exam start - use push() to create new session each time
+            const attemptsRef = database.ref(`examAttempts/${currentUser.uid}/${subject}`);
+            const newAttemptRef = attemptsRef.push();
+            await newAttemptRef.set({
+                email: currentUser.email,
+                subject: subject,
+                startTime: startTime,
+                status: 'in_progress',
+                sessionId: newAttemptRef.key
+            });
+
+            // Store session ID for updates
+            window.currentSessionId = newAttemptRef.key;
+
+            // Log start exam action
+            await logAction('start_exam', { 
+                subject: subject,
+                sessionId: newAttemptRef.key,
+                startTime: new Date(startTime).toISOString(),
+                email: currentUser.email
+            });
+
+            // Start timer
+            startTimer();
+
+            // Start checking for submission
+            startSubmissionCheck();
+
+            // Load Google Form
+            setTimeout(() => {
+                const config = subjectConfig[subject];
+                const formUrl = config.formUrl + encodeURIComponent(currentUser.email);
+                
+                document.getElementById('examFrame').src = formUrl;
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('examContainer').classList.add('active');
+                
+                // เพิ่ม class exam-active เพื่อป้องกันการเลื่อนหน้าหลัก
+                document.body.classList.add('exam-active');
+                
+                // แสดงปุ่ม toggle scroll
+                document.getElementById('scrollToggleBtn').style.display = 'inline-flex';
+            }, 1500);
+
+            // Update status periodically
+            setInterval(updateExamStatus, 30000); // Every 30 seconds
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const formatted = formatTime(Math.floor(elapsed / 1000));
+                
+                document.getElementById('timer').textContent = formatted;
+
+                // Check if overtime (90 minutes = 5400 seconds)
+                if (elapsed > 5400000) {
+                    document.getElementById('timer').classList.add('overtime');
+                    document.getElementById('timerStatus').innerHTML = '<i class="fas fa-exclamation-triangle"></i> เกินเวลาที่ตั้งแล้ว';
+                }
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        async function updateExamStatus() {
+            if (!startTime || !window.currentSessionId) return;
+
+            const duration = Math.floor((Date.now() - startTime) / 1000);
+            const sessionRef = database.ref(`examAttempts/${currentUser.uid}/${subject}/${window.currentSessionId}`);
+            
+            await sessionRef.update({
+                duration: duration,
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        /**
+         * Check if user has submitted the exam
+         */
+        function startSubmissionCheck() {
+            // Check every 5 seconds
+            submissionCheckInterval = setInterval(async () => {
+                if (hasSubmitted) return;
+
+                // Check BOTH uid-based and email-based paths
+                const submissionRef = database.ref(`examSubmissions/${currentUser.uid}/${subject}`);
+                const snapshot = await submissionRef.once('value');
+                
+                const emailKey = currentUser.email.replace(/\./g, ',').replace(/@/g, '_at_');
+                const emailSubmissionRef = database.ref(`examSubmissions/${emailKey}/${subject}`);
+                const emailSnapshot = await emailSubmissionRef.once('value');
+                
+                if (snapshot.exists() || emailSnapshot.exists()) {
+                    hasSubmitted = true;
+                    clearInterval(submissionCheckInterval);
+                    clearInterval(timerInterval);
+                    
+                    // Get the latest submission
+                    let latestSubmission = null;
+                    let submissionCount = 0;
+                    
+                    // Check uid-based path
+                    if (snapshot.exists()) {
+                        const val = snapshot.val();
+                        // Check if it's a direct object or has children
+                        if (val && typeof val === 'object') {
+                            // If it has a timestamp directly, it's the submission data
+                            if (val.timestamp) {
+                                submissionCount = 1;
+                                latestSubmission = val;
+                            } else {
+                                // Otherwise, iterate through children
+                                snapshot.forEach((childSnapshot) => {
+                                    const subData = childSnapshot.val();
+                                    if (subData && subData.timestamp) {
+                                        submissionCount++;
+                                        if (!latestSubmission || subData.timestamp > latestSubmission.timestamp) {
+                                            latestSubmission = subData;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Check email-based path
+                    if (emailSnapshot.exists()) {
+                        const val = emailSnapshot.val();
+                        if (val && typeof val === 'object') {
+                            // If it has a timestamp directly, it's the submission data
+                            if (val.timestamp) {
+                                submissionCount++;
+                                if (!latestSubmission || val.timestamp > latestSubmission.timestamp) {
+                                    latestSubmission = val;
+                                }
+                            } else {
+                                // Otherwise, iterate through children
+                                emailSnapshot.forEach((childSnapshot) => {
+                                    const subData = childSnapshot.val();
+                                    if (subData && subData.timestamp) {
+                                        submissionCount++;
+                                        if (!latestSubmission || subData.timestamp > latestSubmission.timestamp) {
+                                            latestSubmission = subData;
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    
+                    const duration = Math.floor((Date.now() - startTime) / 1000);
+                    
+                    // Update session as completed
+                    if (window.currentSessionId) {
+                        const sessionRef = database.ref(`examAttempts/${currentUser.uid}/${subject}/${window.currentSessionId}`);
+                        await sessionRef.update({
+                            status: 'completed',
+                            duration: duration,
+                            completedAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+
+                    // Prepare submission data with fallback
+                    const submissionData = latestSubmission || {
+                        email: currentUser.email,
+                        timestamp: Date.now()
+                    };
+
+                    // Show success message
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'ส่งข้อสอบสำเร็จ!',
+                        html: `
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-check-circle" style="font-size: 5em; color: #28a745; margin-bottom: 20px;"></i>
+                                <p style="font-size: 1.3em; margin-bottom: 20px; font-weight: 600;">
+                                    ขอแสดงความยินดี! คุณได้ส่งข้อสอบเรียบร้อยแล้ว
+                                </p>
+                                <hr style="margin: 20px 0; border: 1px solid #e0e0e0;">
+                                <div style="text-align: left; background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                                    <p style="margin-bottom: 10px;"><i class="fas fa-book" style="color: #667eea; margin-right: 10px;"></i><strong>วิชา:</strong> ${subjectConfig[subject].title}</p>
+                                    <p style="margin-bottom: 10px;"><i class="fas fa-envelope" style="color: #667eea; margin-right: 10px;"></i><strong>อีเมล:</strong> ${submissionData.email || currentUser.email}</p>
+                                    <p style="margin-bottom: 10px;"><i class="fas fa-clock" style="color: #667eea; margin-right: 10px;"></i><strong>เวลาที่ใช้:</strong> ${formatTime(duration)}</p>
+                                    <p style="margin-bottom: 10px;"><i class="fas fa-calendar-check" style="color: #667eea; margin-right: 10px;"></i><strong>ส่งเมื่อ:</strong> ${new Date(submissionData.timestamp).toLocaleString('th-TH')}</p>
+                                    ${submissionCount > 0 ? `<p><i class="fas fa-history" style="color: #667eea; margin-right: 10px;"></i><strong>ครั้งที่ส่ง:</strong> ${submissionCount}</p>` : ''}
+                                </div>
+                                <hr style="margin: 20px 0; border: 1px solid #e0e0e0;">
+                                <p style="color: #28a745; font-size: 1.2em; margin-top: 20px;">
+                                    <i class="fas fa-clover"></i> ขอให้โชคดีกับการสอบ! <i class="fas fa-star"></i>
+                                </p>
+                                <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                                    ระบบจะนำคุณกลับหน้าหลักในอีกสักครู่...
+                                </p>
+                            </div>
+                        `,
+                        confirmButtonColor: '#667eea',
+                        confirmButtonText: '<i class="fas fa-home"></i> กลับหน้าหลัก',
+                        allowOutsideClick: false,
+                        timer: 10000,
+                        timerProgressBar: true
+                    });
+
+                    // Redirect to home
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 500);
+                }
+            }, 5000); // Check every 5 seconds
+        }
+
+        async function logAction(action, data) {
+            if (!currentUser) return;
+
+            try {
+                const logRef = database.ref('examLogs').push();
+                await logRef.set({
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    action: action,
+                    data: data,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch (error) {
+                console.error('Error logging action:', error);
+            }
+        }
+
+        // Toggle scroll function
+        let scrollLocked = true; // เริ่มต้นล็อกการเลื่อน
+
+        function toggleScroll() {
+            scrollLocked = !scrollLocked;
+            const btn = document.getElementById('scrollToggleBtn');
+            const icon = btn.querySelector('i');
+            const text = document.getElementById('scrollToggleText');
+            
+            if (scrollLocked) {
+                // ล็อกการเลื่อน - เลื่อนได้เฉพาะ iframe
+                document.body.classList.add('exam-active');
+                icon.className = 'fas fa-lock';
+                text.textContent = 'เลื่อนข้อสอบไม่ได้?';
+            } else {
+                // ปลดล็อก - เลื่อนได้ทั้งหน้า
+                document.body.classList.remove('exam-active');
+                icon.className = 'fas fa-unlock';
+                text.textContent = 'ปิดการเลื่อนข้อสอบ';
+            }
+        }
+
+        // Save status before page unload
+        window.addEventListener('beforeunload', (e) => {
+            if (startTime && !hasSubmitted) {
+                updateExamStatus();
+                // ถามยืนยันก่อน refresh หน้า
+                e.preventDefault();
+                e.returnValue = 'คุณกำลังทำข้อสอบอยู่ ต้องการออกจากหน้านี้หรือไม่?';
+                return e.returnValue;
+            }
+        });
+
+        // Cleanup intervals when page unloads
+        window.addEventListener('unload', () => {
+            if (submissionCheckInterval) {
+                clearInterval(submissionCheckInterval);
+            }
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        });
+
+        // ป้องกัน pull-to-refresh บน iOS/Android
+        let startY = 0;
+        document.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].pageY;
+        }, { passive: false });
+
+        document.addEventListener('touchmove', (e) => {
+            const y = e.touches[0].pageY;
+            // ถ้าอยู่ในส่วน iframe อนุญาตให้ scroll
+            if (e.target.closest('iframe')) {
+                return;
+            }
+            // ถ้าเลื่อนลงที่ตำแหน่งบนสุดของหน้า ป้องกัน pull-to-refresh
+            if (window.scrollY === 0 && y > startY) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // ป้องกันการ overscroll
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.iframe-container') || e.target.closest('.content')) {
+                return; // อนุญาตให้เลื่อนใน iframe และ content
+            }
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
+</body>
+</html>
